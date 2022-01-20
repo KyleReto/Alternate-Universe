@@ -24,7 +24,7 @@ async def on_ready():
     print(f'Guild: {guild}')
 
     for channel in channels:
-        file = open(channel.name + ".txt", "w", encoding='utf-8')
+        file = open("scrapes/" + channel.name + ".txt", "w", encoding='utf-8')
         print(f'Scraping channel: {channel}')
         async for message in channel.history(limit=None):
             encoded = f'[{message.author.name};{message.clean_content}'
