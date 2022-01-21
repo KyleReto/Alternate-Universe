@@ -1,7 +1,6 @@
 import os
 import sys
 import discord as ds
-import json
 from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -32,7 +31,19 @@ async def on_ready():
                 encoded += f';{message.reference.resolved.author};{message.reference.resolved.clean_content}'
             file.write(encoded + "]\n")
         file.close()
-    print("Finished.")
+    print("Finished scraping, processing files...")
+
+    complete_scrape = open("scrapes/completeScrape.txt", "w", encoding='utf-8')
+    for file_name in os.listdir("scrapes"):
+        if file_name.endswith(".txt") and file != "completeScrape.txt":
+            file = open("scrapes/" + file_name, "r", encoding='utf-8')
+            lines = file.readlines()
+            for line in reversed(lines):
+                complete_scrape.write(line)
+            file.close()
+    complete_scrape.close()
+            
+    
     sys.exit(0)
 
 # Format of a proper encode is as follows:
