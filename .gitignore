@@ -1,4 +1,7 @@
 *.env
 *.txt
 .venv/
+models/
+checkpoint/
+samples/
 !requirements.txt
