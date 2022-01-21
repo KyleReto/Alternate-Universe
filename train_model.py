@@ -13,6 +13,8 @@ gpt2.finetune(sess,
               file_name,
               model_name=model_name,
               sample_every=20,
+              save_every=100,
+              restore_from='latest',
               overwrite=True,
               steps=1000)   # steps is max number of training steps
 
