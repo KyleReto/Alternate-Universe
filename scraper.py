@@ -28,7 +28,7 @@ async def on_ready():
         async for message in channel.history(limit=None):
             encoded = f'[{message.author.name};{message.clean_content}'
             if message.reference and message.reference.resolved and not (isinstance(message.reference.resolved, ds.DeletedReferencedMessage)):
-                encoded += f';{message.reference.resolved.author};{message.reference.resolved.clean_content}'
+                encoded += f';{message.reference.resolved.author.name};{message.reference.resolved.clean_content}'
             if (message.clean_content != ''):
                 file.write(encoded + "]\n")
         file.close()
@@ -45,7 +45,7 @@ async def on_ready():
     complete_scrape.close()
             
     
-    sys.exit(0)
+    exit("Scraping complete.")
 
 # Format of a proper encode is as follows:
 # [author;message;referenceAuthor;referenceContent(missing if absent)] (Newline between entries)
