@@ -7,7 +7,7 @@ A set of Python applications that allow the user to generate text outputs based 
   a. Rename the `.env_template` file to `.env`  
   b. Replace the variables inside according to the text. Make sure to delete the `{` and `}` characters.
 3. Ensure you have a discord bot in your server that you own.  
-  a. You need to have access to the bot's private key, which goes in `.env`
+  a. You need to have access to the bot's private key, which goes in `.env`  
   b. The bot needs permission to read messages/view channels, read message history, send messages, and use slash commands in your server, at a minimum.
 4. Run scraper.py to scrape your discord server and generate .txt files for each channel on it
 5. Run train_model.py to create a GPT-2 model and train it on those inputs
