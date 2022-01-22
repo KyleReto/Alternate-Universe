@@ -118,7 +118,6 @@ async def regenerate(ctx):
 
 @bot.slash_command(description='Get the number of quotes in the cache.')
 async def cache_status(ctx):
-    # Get all lines
     file = open('cache.txt', 'r')
     lines = file.readlines()
     file.close()
@@ -182,7 +181,6 @@ async def au_prefix(ctx, *, prefix):
             batch_size=1,
             return_as_list=True
             )[0]
-    # Remove the prefix from the generated string
     output = format_string(output)
     output = replace_unsafe_chars(output, reverse=True)
     return await ctx.respond(output[:output.rfind('\n')])

@@ -12,8 +12,6 @@ if not os.path.isdir(os.path.join("models", MODEL_NAME)):
 file_name = "scrapes/completeScrape.txt"
 
 sess = gpt2.start_tf_sess()
-# Due to encoding options not being allowed in gpt-2-simple, this currently does not support certain special characters.
-# This may result in occasional crashes.
 
 # If the model is a larger model, change the finetune() parameters to match
 is_large_model = False
@@ -31,4 +29,4 @@ gpt2.finetune(sess,
               accumulate_gradients=1 if is_large_model else 5,
               restore_from='latest',
               overwrite=True,
-              steps=1000)   # steps is max number of training steps
+              steps=1000)
