@@ -7,6 +7,8 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('DISCORD_GUILD')
 TEMP = os.getenv('TEMPERATURE')
+TOP_K = os.getenv('TOP_K')
+REGEN_COUNT = os.getenv('REGENERATE_QUOTE_COUNT')
 bot = discord.Bot()
 
 sess = gpt2.start_tf_sess()
@@ -30,28 +32,18 @@ class Message:
     def encode(self):
         encoded_author = self.author
         encoded_content = self.content
-        # Ensure that the contents are safe before encoding
-        replace_map = (
-            ("]", '&(rb)'),
-            ('[', '&(lb)'),
-            (';', '&(sc)'),
-            ('\n', '&(nl)')
-        )
-        for mapping in replace_map:
-            encoded_author = encoded_author.replace(mapping[0], mapping[1])
-            encoded_content = encoded_content.replace(mapping[0], mapping[1])
+        encoded_author = replace_unsafe_chars(encoded_author)
+        encoded_content = replace_unsafe_chars(encoded_content)
 
         string = f'[{encoded_author};{encoded_content}'
         if self.reply_author is not None:
             encoded_reply_author = self.reply_author
-            for mapping in replace_map:
-                encoded_reply_author = encoded_reply_author.replace(mapping[0], mapping[1])
+            encoded_reply_author = replace_unsafe_chars(encoded_reply_author)
             string += f';{encoded_reply_author}'
         
         if self.reply_content is not None:
             encoded_reply_content = self.reply_content
-            for mapping in replace_map:
-                encoded_reply_content = encoded_reply_content.replace(mapping[0], mapping[1])
+            encoded_reply_content = replace_unsafe_chars(encoded_reply_content)
             string += f';{encoded_reply_content}'
         string += ']'
         return string
@@ -60,15 +52,8 @@ class Message:
     def decode(cls, string):
         split = re.split(';|[|]', string)
     
-        replace_map = (
-            ("]", '&(rb)'),
-            ('[', '&(lb)'),
-            (';', '&(sc)'),
-            ('\n', '&(nl)')
-        )
-        for mapping in replace_map:
-            for part in split:
-                part = part.replace(mapping[1], mapping[0])
+        for part in split:
+            part = replace_unsafe_chars(part, reverse=True)
         try:
             try:
                 mess = Message(split[0], split[1], split[2], split[3])
@@ -81,78 +66,125 @@ class Message:
 
         return mess
 
+# Encode unsafe characters in the given string. The reverse parameter instead decodes the string.
+def replace_unsafe_chars(input_string, reverse = False):
+    replace_map = (
+        ("]", '&(rb)'),
+        ('[', '&(lb)'),
+        (';', '&(sc)'),
+        ('\n', '&(nl)')
+    )
+    if not reverse:
+        for mapping in replace_map:
+            input_string = input_string.replace(mapping[0], mapping[1])
+    else:
+        for mapping in replace_map:
+            input_string = input_string.replace(mapping[1], mapping[0])
+    return input_string
+
+# Formats a string into the discord format
+def format_string(input_string):
+    replace_map = (
+        (": ", ';'),
+        ("", ']'),
+        ("", '[')
+    )
+    for mapping in replace_map:
+        input_string = input_string.replace(mapping[1], mapping[0])
+    return input_string
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} connected successfully')
 
-@bot.slash_command()
-async def au(ctx):
-    # mess = Message(ctx.author, arg)
-    # await ctx.send(Message.encode(mess))
-    await ctx.respond("test")
-
-@bot.slash_command()
+@bot.slash_command(description='Add to the cache of quotes, so that /au runs faster.')
 async def regenerate(ctx):
-    await ctx.respond("test")
-
-# For testing purposes, normal prefix commands
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    # Continue a given prompt message.
-    if message.content.startswith('?au '):
-        if message.reference and message.reference.resolved and not (isinstance(message.reference.resolved, discord.DeletedReferencedMessage)):
-            mess = Message(message.author.name, message.content[4:], 
-                message.reference.resolved.author.name, message.reference.resolved.content)
-        else:
-            mess = Message(message.author.name, message.content[4:])
-        await message.channel.send("Generating text...")
+    await ctx.respond("Generating a new supply of quotes...")
+    file = open("cache.txt", "a", encoding='utf-8')
+    for i in range(int(REGEN_COUNT)):
         output = gpt2.generate(sess,
-              length=200,
-              temperature=0.7,
-              prefix=mess.encode(),
-              nsamples=1,
-              batch_size=1,
-              return_as_list=True
-              )[0]
-        # Remove the prefix from the generated string
-        output = output[len(mess.encode())+1:]
-        replace_map = (
-            (": ", ';'),
-            ("", ']'),
-            ("", '['),
-            ("]", '&(rb)'),
-            ('[', '&(lb)'),
-            (';', '&(sc)'),
-            ('\n', '&(nl)')
-        )
-        for mapping in replace_map:
-            output = output.replace(mapping[1], mapping[0])
-        return await message.channel.send(output[:output.rfind('\n')])
-    
-    # Output random text.
-    if message.content == '?au':
-        await message.channel.send("Thinking...")
+            length=200,
+            temperature=float(TEMP),
+            top_k=int(TOP_K),
+            nsamples=1,
+            batch_size=1,
+            return_as_list=True
+            )[0]
+        output = format_string(output)
+        output = replace_unsafe_chars(output, reverse=True)
+        file.write(output[:output.rfind('\n')] + "\n``````\n")
+    file.close()
+    return await ctx.respond("New quotes generated successfully.")
+
+@bot.slash_command(description='Get the number of quotes in the cache.')
+async def cache_status(ctx):
+    # Get all lines
+    file = open('cache.txt', 'r')
+    lines = file.readlines()
+    file.close()
+
+    count = 0
+    # Count the number of delimiters
+    for line in lines:
+        if line == '``````\n':
+            count += 1
+    return await ctx.respond(f'The cache has {count} quotes.')
+
+@bot.slash_command(description='Generate a quote.')
+async def au(ctx):
+    # Get all lines
+    file = open('cache.txt', 'r')
+    lines = file.readlines()
+    file.close()
+
+    # Get the new quotes as a list
+    quote_as_list = []
+    while os.stat('cache.txt').st_size != 0 and lines:
+        if lines[0] == '``````\n':
+            lines.remove(lines[0])
+            break
+        quote_as_list.append(lines[0])
+        lines.remove(lines[0])
+
+    # Rewrite all lines, minus the ones we used.
+    file = open('cache.txt', 'w')
+    file.writelines(lines)
+    file.close()
+
+    output = ""
+    if not quote_as_list:  
+        await ctx.respond('The cache is empty, use /regenerate to speed up response times. Generating a new quote...')
         output = gpt2.generate(sess,
-              length=200,
-              temperature=0.7,
-              nsamples=1,
-              batch_size=1,
-              return_as_list=True
-              )[0]
-        replace_map = (
-            (": ", ';'),
-            ("", ']'),
-            ("", '['),
-            ("]", '&(rb)'),
-            ('[', '&(lb)'),
-            (';', '&(sc)'),
-            ('\n', '&(nl)')
-        )
-        for mapping in replace_map:
-            output = output.replace(mapping[1], mapping[0])
-        return await message.channel.send(output[:output.rfind('\n')])
+            length=200,
+            temperature=float(TEMP),
+            top_k=int(TOP_K),
+            nsamples=1,
+            batch_size=1,
+            return_as_list=True
+            )[0]
+        output = format_string(output)
+        output = replace_unsafe_chars(output, reverse=True)
+    else:
+        for line in quote_as_list:
+            output += line
+    return await ctx.respond(output[:output.rfind('\n')])
+
+@bot.slash_command(description='Generate a quote given a prefix. This does not benefit from the cache.')
+async def au_prefix(ctx, *, prefix):
+    mess = Message(ctx.author.name, prefix)
+    await ctx.respond("Generating text...")
+    output = gpt2.generate(sess,
+            length=200,
+            temperature=float(TEMP),
+            top_k=int(TOP_K),
+            prefix=mess.encode(),
+            nsamples=1,
+            batch_size=1,
+            return_as_list=True
+            )[0]
+    # Remove the prefix from the generated string
+    output = format_string(output)
+    output = replace_unsafe_chars(output, reverse=True)
+    return await ctx.respond(output[:output.rfind('\n')])
 
 bot.run(TOKEN)
