@@ -1,5 +1,6 @@
 # Alternate-Universe
-A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-2.
+A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-2.  
+You'll need a discord bot and key of your own, check out https://discord.com/developers/applications for more info.
 1. Set up your virtual environment:  
   a. `python -m venv .venv`  
   b. `pip install -r .\requirements.txt`  
