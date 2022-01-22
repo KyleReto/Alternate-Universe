@@ -40,7 +40,7 @@ async def on_ready():
             file = open("scrapes/" + file_name, "r", encoding='utf-8')
             lines = file.readlines()
             for line in reversed(lines):
-                complete_scrape.write(line)
+                complete_scrape.write(line.replace('\ufffd', ''))
             file.close()
     complete_scrape.close()
             
