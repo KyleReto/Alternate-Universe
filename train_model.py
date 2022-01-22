@@ -26,6 +26,7 @@ gpt2.finetune(sess,
               model_name=MODEL_NAME,
               sample_every=20,
               save_every=20,
+              # Memory saving gradients are not available in this version of TF.
               only_train_transformer_layers=is_large_model,
               accumulate_gradients=1 if is_large_model else 5,
               restore_from='latest',
