@@ -29,7 +29,8 @@ async def on_ready():
             encoded = f'[{message.author.name};{message.clean_content}'
             if message.reference and message.reference.resolved and not (isinstance(message.reference.resolved, ds.DeletedReferencedMessage)):
                 encoded += f';{message.reference.resolved.author};{message.reference.resolved.clean_content}'
-            file.write(encoded + "]\n")
+            if (message.clean_content != ''):
+                file.write(encoded + "]\n")
         file.close()
     print("Finished scraping, processing files...")
 
