@@ -12,4 +12,5 @@ You'll need a discord bot and key of your own, check out https://discord.com/dev
   b. The bot needs permission to read messages/view channels, read message history, send messages, and use slash commands in your server, at a minimum.
 4. Run scraper.py to scrape your discord server and generate .txt files for each channel on it
 5. Run train_model.py to create a GPT-2 model and train it on those inputs
-6. Run bot.py to start up the discord bot, which responds to `/au` or `/au_prefix` to generate text.
+6. Run bot.py to start up the discord bot, which responds to `/au` or `/au_prefix` to generate text.  
+      Alternatively, you could run `regenerate.py`, then run `bot_cache_only.py` to run the bot without built-in quote generation. This means you lose access to the `/au_prefix` command, and you have to run `regenerate.py` every time you want new quotes, but the bot program uses much less of your system resources in return.
