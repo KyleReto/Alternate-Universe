@@ -24,7 +24,7 @@ if MODEL_NAME == '774M' or MODEL_NAME == '1558M':
 gpt2.finetune(sess,
               file_name,
               model_name=MODEL_NAME,
-              sample_every=50,
+              sample_every=60,
               save_every=20,
               # Memory saving gradients are not available in this version of TF.
               only_train_transformer_layers=is_large_model,
