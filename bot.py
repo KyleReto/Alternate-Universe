@@ -100,7 +100,6 @@ async def on_ready():
 @bot.slash_command(description='Add to the cache of quotes, so that /au runs faster.')
 async def regenerate(ctx):
     await ctx.respond("Generating a new supply of quotes...")
-    file = open("cache.txt", "a", encoding='utf-8')
     for i in range(int(REGEN_COUNT)):
         output = gpt2.generate(sess,
             length=200,
@@ -112,13 +111,14 @@ async def regenerate(ctx):
             )[0]
         output = format_string(output)
         output = replace_unsafe_chars(output, reverse=True)
+        file = open("cache.txt", "a", encoding='utf8')
         file.write(output[:output.rfind('\n')] + "\n``````\n")
-    file.close()
+        file.close()
     return await ctx.respond("New quotes generated successfully.")
 
 @bot.slash_command(description='Get the number of quotes in the cache.')
 async def cache_status(ctx):
-    file = open('cache.txt', 'r', encoding='utf-8')
+    file = open('cache.txt', 'r', encoding='utf8')
     lines = file.readlines()
     file.close()
 
@@ -132,7 +132,7 @@ async def cache_status(ctx):
 @bot.slash_command(description='Generate a quote.')
 async def au(ctx):
     # Get all lines
-    file = open('cache.txt', 'r', encoding='utf-8')
+    file = open('cache.txt', 'r', encoding='utf8')
     lines = file.readlines()
     file.close()
 
@@ -146,7 +146,7 @@ async def au(ctx):
         lines.remove(lines[0])
 
     # Rewrite all lines, minus the ones we used.
-    file = open('cache.txt', 'w', encoding='utf-8')
+    file = open('cache.txt', 'w', encoding='utf8')
     file.writelines(lines)
     file.close()
 
