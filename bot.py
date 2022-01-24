@@ -118,7 +118,7 @@ async def regenerate(ctx):
 
 @bot.slash_command(description='Get the number of quotes in the cache.')
 async def cache_status(ctx):
-    file = open('cache.txt', 'r')
+    file = open('cache.txt', 'r', encoding='utf-8')
     lines = file.readlines()
     file.close()
 
@@ -132,7 +132,7 @@ async def cache_status(ctx):
 @bot.slash_command(description='Generate a quote.')
 async def au(ctx):
     # Get all lines
-    file = open('cache.txt', 'r')
+    file = open('cache.txt', 'r', encoding='utf-8')
     lines = file.readlines()
     file.close()
 
@@ -146,7 +146,7 @@ async def au(ctx):
         lines.remove(lines[0])
 
     # Rewrite all lines, minus the ones we used.
-    file = open('cache.txt', 'w')
+    file = open('cache.txt', 'w', encoding='utf-8')
     file.writelines(lines)
     file.close()
 
