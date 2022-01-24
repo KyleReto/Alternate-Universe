@@ -23,7 +23,7 @@ async def on_ready():
     print(f'Guild: {guild}')
 
     for channel in channels:
-        file = open("scrapes/" + channel.name + ".txt", "w", encoding='utf-8')
+        file = open("scrapes/" + channel.name + ".txt", "w", encoding='utf8')
         print(f'Scraping channel: {channel}')
         async for message in channel.history(limit=None):
             encoded = f'[{message.author.name};{message.clean_content}'
@@ -34,10 +34,10 @@ async def on_ready():
         file.close()
     print("Finished scraping, processing files...")
 
-    complete_scrape = open("scrapes/completeScrape.txt", "w", encoding='utf-8')
+    complete_scrape = open("scrapes/completeScrape.txt", "w", encoding='utf8')
     for file_name in os.listdir("scrapes"):
         if file_name.endswith(".txt") and file != "completeScrape.txt":
-            file = open("scrapes/" + file_name, "r", encoding='utf-8')
+            file = open("scrapes/" + file_name, "r", encoding='utf8')
             lines = file.readlines()
             for line in reversed(lines):
                 complete_scrape.write(line)

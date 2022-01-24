@@ -36,7 +36,6 @@ def format_string(input_string):
         input_string = input_string.replace(mapping[1], mapping[0])
     return input_string
 
-file = open("cache.txt", "a", encoding='utf-8')
 for i in range(int(REGEN_COUNT)):
     output = gpt2.generate(sess,
         length=200,
@@ -49,6 +48,7 @@ for i in range(int(REGEN_COUNT)):
     output = format_string(output)
     output = replace_unsafe_chars(output, reverse=True)
     print(f'Quote {i+1} generated successfully.')
+    file = open("cache.txt", "a", encoding='utf8')
     file.write(output[:output.rfind('\n')] + "\n``````\n")
-file.close()
+    file.close()
 print('Regeneration Complete.')
