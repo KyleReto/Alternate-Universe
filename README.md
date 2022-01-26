@@ -2,10 +2,11 @@
 A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-2.  
 You'll need a discord bot and key of your own, check out https://discord.com/developers/applications for more info.
 1. Set up your virtual environment in Powershell:  
-  a. `python -m venv .venv`  
-  b. `pip install -r .\requirements.txt`  
-  c. Also install the [Development Version of Py-cord](https://github.com/Pycord-Development/pycord)  
-  Note: These instructions assuming you're using a Windows computer with Python 3.9. The instructions may not apply for other OSs or Python versions.
+  a. Create the virtual environment: `python -m venv .venv`  
+  b. Activate it: `& /.venv/Scripts/Activate.ps1`
+  b. Install the requirements through pip: `pip install -r .\requirements.txt`  
+  c. Also install the [Development Version of Py-cord](https://github.com/Pycord-Development/pycord), which must be manually downloaded.  
+  Note: These instructions assuming you're using a Windows computer with Python 3.9. The instructions may not apply for other OSes or Python versions.
 2. Configure the environment variables  
   a. Rename the `.env_template` file to `.env`  
   b. Replace the variables inside according to the text. Make sure to delete the `{` and `}` characters.
