@@ -1,9 +1,10 @@
 # Alternate-Universe
 A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-2.  
 You'll need a discord bot and key of your own, check out https://discord.com/developers/applications for more info.
-1. Set up your virtual environment:  
+1. Set up your virtual environment in Powershell:  
   a. `python -m venv .venv`  
   b. `pip install -r .\requirements.txt`  
+  Note: These instructions assuming you're using a Windows computer with Python 3.9. The instructions may not apply for other OSs or Python versions.
 2. Configure .the environment variables  
   a. Rename the `.env_template` file to `.env`  
   b. Replace the variables inside according to the text. Make sure to delete the `{` and `}` characters.
