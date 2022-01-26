@@ -5,7 +5,7 @@ You'll need a discord bot and key of your own, check out https://discord.com/dev
   a. `python -m venv .venv`  
   b. `pip install -r .\requirements.txt`  
   Note: These instructions assuming you're using a Windows computer with Python 3.9. The instructions may not apply for other OSs or Python versions.
-2. Configure .the environment variables  
+2. Configure the environment variables  
   a. Rename the `.env_template` file to `.env`  
   b. Replace the variables inside according to the text. Make sure to delete the `{` and `}` characters.
 3. Ensure you have a discord bot in your server that you own.  
