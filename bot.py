@@ -3,12 +3,15 @@ import re
 import discord
 import gpt_2_simple as gpt2
 from dotenv import load_dotenv
+from pathlib import Path
+import glob
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('DISCORD_GUILD')
 TEMP = os.getenv('TEMPERATURE')
 TOP_K = os.getenv('TOP_K')
 REGEN_COUNT = os.getenv('REGENERATE_QUOTE_COUNT')
+REGEN_PER_USER = os.getenv('REGENERATE_PER_PERSON')
 bot = discord.Bot()
 
 sess = gpt2.start_tf_sess()
@@ -114,6 +117,23 @@ async def regenerate(ctx):
         file = open("cache.txt", "a", encoding='utf8')
         file.write(output[:output.rfind('\n')] + "\n``````\n")
         file.close()
+
+    for file in glob.glob('from_user_cache/*'):
+        for i in range(int(REGEN_PER_USER)):
+            output = gpt2.generate(sess,
+                length=200,
+                temperature=float(TEMP),
+                top_k=int(TOP_K),
+                nsamples=1,
+                batch_size=1,
+                prefix='[' + file[16:-4] + ';',
+                return_as_list=True
+                )[0]
+            output = format_string(output)
+            output = replace_unsafe_chars(output, reverse=True)
+            file = open(file, "a", encoding='utf8')
+            file.write(output[:output.rfind('\n')] + "\n``````\n")
+            file.close()
     return await ctx.respond("New quotes generated successfully.")
 
 @bot.slash_command(description='Get the number of quotes in the cache.')
@@ -183,6 +203,55 @@ async def au_prefix(ctx, *, prefix):
             )[0]
     output = format_string(output)
     output = replace_unsafe_chars(output, reverse=True)
+    return await ctx.respond(output[:output.rfind('\n')])
+
+@bot.slash_command(description='Generate a quote from a specific user. Make sure to capitalize their name properly.')
+async def au_from(ctx, user):
+    # Get all lines
+    file_name = 'from_user_cache/' + user.replace('.', '').replace('/', '') + '.txt'
+    try:
+        file = open(file_name, 'r', encoding='utf8')
+        lines = file.readlines()
+        file.close()
+    except FileNotFoundError:
+        ctx.respond(user + ' has been added to the cache list.')
+        file = Path(file_name)
+        file.touch(exist_ok=True)
+        file = open(file_name, 'r', encoding='utf8')
+        lines = file.readlines()
+        file.close()
+
+    # Get the new quotes as a list
+    quote_as_list = []
+    while os.stat(file_name).st_size != 0 and lines:
+        if lines[0] == '``````\n':
+            lines.remove(lines[0])
+            break
+        quote_as_list.append(lines[0])
+        lines.remove(lines[0])
+
+    # Rewrite all lines, minus the ones we used.
+    file = open(file_name, 'w', encoding='utf8')
+    file.writelines(lines)
+    file.close()
+
+    output = ""
+    if not quote_as_list:  
+        await ctx.respond('The cache is empty, use /regenerate to speed up response times. Generating a new quote...')
+        output = gpt2.generate(sess,
+            length=200,
+            temperature=float(TEMP),
+            top_k=int(TOP_K),
+            nsamples=1,
+            prefix='[' + user + ';',
+            batch_size=1,
+            return_as_list=True
+            )[0]
+        output = format_string(output)
+        output = replace_unsafe_chars(output, reverse=True)
+    else:
+        for line in quote_as_list:
+            output += line
     return await ctx.respond(output[:output.rfind('\n')])
 
 bot.run(TOKEN)
