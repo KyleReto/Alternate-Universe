@@ -101,4 +101,18 @@ async def au_prefix(ctx, *, prefix):
     return await ctx.respond('''Sorry, this version of the bot doesn't support that command.
 Use /au instead, or ask the bot owner to run the full version of the bot.''')
 
+@bot.slash_command(description='Register a user so that responses will be generated for them in the future.')
+async def register(ctx, user):
+    # Get all lines
+    file_name = 'from_user_cache/' + user.replace('.', '').replace('/', '') + '.txt'
+    try:
+        file = open(file_name, 'r', encoding='utf8')
+        file.close()
+        return await ctx.respond('That user already exists.')
+    except FileNotFoundError:
+        file = Path(file_name)
+        file.touch(exist_ok=True)
+        return await ctx.respond('''A cache file for that person was created. 
+Ask the bot owner to run the `regenerate.py` script to fill it.''')
+
 bot.run(TOKEN)
