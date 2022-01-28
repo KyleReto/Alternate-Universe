@@ -67,9 +67,10 @@ for file in glob.glob('from_user_cache/*'):
             )[0]
         output = format_string(output)
         output = replace_unsafe_chars(output, reverse=True)
+        fname = file
         file = open(file, "a", encoding='utf8')
         file.write(output[:output.rfind('\n')] + "\n``````\n")
         file.close()
-        print(f'{file[16:-4]}\'s quote {i+1} generated successfully.')
+        print(f'{fname[16:-4]}\'s quote {i+1} generated successfully.')
 
 print('Regeneration Complete.')
