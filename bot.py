@@ -103,36 +103,38 @@ async def on_ready():
 @bot.slash_command(description='Add to the cache of quotes, so that /au runs faster.')
 async def regenerate(ctx):
     await ctx.respond("Generating a new supply of quotes...")
-    for i in range(int(REGEN_COUNT)):
+    if int(REGEN_COUNT) > 0:
         output = gpt2.generate(sess,
             length=200,
             temperature=float(TEMP),
             top_k=int(TOP_K),
-            nsamples=1,
-            batch_size=1,
+            nsamples=int(REGEN_COUNT),
+            batch_size=int(REGEN_COUNT),
             return_as_list=True
-            )[0]
-        output = format_string(output)
-        output = replace_unsafe_chars(output, reverse=True)
+            )
         file = open("cache.txt", "a", encoding='utf8')
-        file.write(output[:output.rfind('\n')] + "\n``````\n")
+        for quote in output:
+            quote = format_string(quote)
+            quote = replace_unsafe_chars(quote, reverse=True)
+            file.write(quote[:quote.rfind('\n')] + "\n``````\n")
         file.close()
 
-    for file_name in glob.glob('from_user_cache/*'):
-        for i in range(int(REGEN_PER_USER)):
+    if int(REGEN_PER_USER) > 0:
+        for file_name in glob.glob('from_user_cache/*'):
             output = gpt2.generate(sess,
                 length=200,
                 temperature=float(TEMP),
                 top_k=int(TOP_K),
-                nsamples=1,
-                batch_size=1,
+                nsamples=int(REGEN_PER_USER),
+                batch_size=int(REGEN_PER_USER),
                 prefix='[' + file_name[16:-4] + ';',
                 return_as_list=True
-                )[0]
-            output = format_string(output)
-            output = replace_unsafe_chars(output, reverse=True)
+                )
             file = open(file_name, "a", encoding='utf8')
-            file.write(output[:output.rfind('\n')] + "\n``````\n")
+            for quote in output:
+                quote = format_string(quote)
+                quote = replace_unsafe_chars(quote, reverse=True)
+                file.write(quote[:quote.rfind('\n')] + "\n``````\n")
             file.close()
     return await ctx.respond("New quotes generated successfully.")
 

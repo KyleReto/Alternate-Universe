@@ -38,38 +38,46 @@ def format_string(input_string):
         input_string = input_string.replace(mapping[1], mapping[0])
     return input_string
 
-for i in range(int(REGEN_COUNT)):
+if int(REGEN_COUNT) > 0:
     output = gpt2.generate(sess,
         length=200,
         temperature=float(TEMP),
         top_k=int(TOP_K),
-        nsamples=1,
-        batch_size=1,
+        nsamples=int(REGEN_COUNT),
+        batch_size=int(REGEN_COUNT),
         return_as_list=True
-        )[0]
-    output = format_string(output)
-    output = replace_unsafe_chars(output, reverse=True)
-    print(f'Generic quote {i+1} generated successfully.')
+        )
     file = open("cache.txt", "a", encoding='utf8')
-    file.write(output[:output.rfind('\n')] + "\n``````\n")
+    for quote in output:
+        quote = format_string(quote)
+        quote = replace_unsafe_chars(quote, reverse=True)
+        file.write(quote[:quote.rfind('\n')] + "\n``````\n")
+    print(f'Generic quotes generated successfully.')
     file.close()
 
-for fname in glob.glob('from_user_cache/*'):
-    for i in range(int(REGEN_PER_USER)):
+    if int(REGEN_PER_USER) > 0:
+        # Restart the session, to duct-tape memory leak
+        gpt2.reset_session()
+        sess = gpt2.start_tf_sess()
+        gpt2.load_gpt2(sess)
+
+if int(REGEN_PER_USER) > 0:
+    for fname in glob.glob('from_user_cache/*'):
         output = gpt2.generate(sess,
             length=200,
             temperature=float(TEMP),
             top_k=int(TOP_K),
-            nsamples=1,
-            batch_size=1,
+            nsamples=int(REGEN_PER_USER),
+            batch_size=int(REGEN_PER_USER),
             prefix='[' + fname[16:-4] + ';',
             return_as_list=True
-            )[0]
-        output = format_string(output)
-        output = replace_unsafe_chars(output, reverse=True)
+            )
         file = open(fname, "a", encoding='utf8')
-        file.write(output[:output.rfind('\n')] + "\n``````\n")
+        for quote in output:
+            quote = format_string(quote)
+            quote = replace_unsafe_chars(quote, reverse=True)
+            file.write(quote[:quote.rfind('\n')] + "\n``````\n")
+        print(f'{fname[16:-4]}\'s quotes generated successfully.')
         file.close()
-        print(f'{fname[16:-4]}\'s quote {i+1} generated successfully.')
 
 print('Regeneration Complete.')
