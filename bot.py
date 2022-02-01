@@ -10,6 +10,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = os.getenv('DISCORD_GUILD')
 TEMP = os.getenv('TEMPERATURE')
 TOP_K = os.getenv('TOP_K')
+BATCH_SIZE = os.getenv('BATCH_SIZE')
 REGEN_COUNT = os.getenv('REGENERATE_QUOTE_COUNT')
 REGEN_PER_USER = os.getenv('REGENERATE_PER_PERSON')
 bot = discord.Bot()
@@ -109,7 +110,7 @@ async def regenerate(ctx):
             temperature=float(TEMP),
             top_k=int(TOP_K),
             nsamples=int(REGEN_COUNT),
-            batch_size=int(REGEN_COUNT),
+            batch_size=int(BATCH_SIZE),
             return_as_list=True
             )
         file = open("cache.txt", "a", encoding='utf8')
@@ -126,7 +127,7 @@ async def regenerate(ctx):
                 temperature=float(TEMP),
                 top_k=int(TOP_K),
                 nsamples=int(REGEN_PER_USER),
-                batch_size=int(REGEN_PER_USER),
+                batch_size=int(BATCH_SIZE),
                 prefix='[' + file_name[16:-4] + ';',
                 return_as_list=True
                 )

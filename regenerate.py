@@ -7,6 +7,7 @@ TEMP = os.getenv('TEMPERATURE')
 TOP_K = os.getenv('TOP_K')
 REGEN_COUNT = os.getenv('REGENERATE_QUOTE_COUNT')
 REGEN_PER_USER = os.getenv('REGENERATE_PER_PERSON')
+BATCH_SIZE = os.getenv('BATCH_SIZE')
 
 sess = gpt2.start_tf_sess()
 gpt2.load_gpt2(sess)
@@ -44,7 +45,7 @@ if int(REGEN_COUNT) > 0:
         temperature=float(TEMP),
         top_k=int(TOP_K),
         nsamples=int(REGEN_COUNT),
-        batch_size=int(REGEN_COUNT),
+        batch_size=int(BATCH_SIZE),
         return_as_list=True
         )
     file = open("cache.txt", "a", encoding='utf8')
@@ -55,12 +56,6 @@ if int(REGEN_COUNT) > 0:
     print(f'Generic quotes generated successfully.')
     file.close()
 
-    if int(REGEN_PER_USER) > 0:
-        # Restart the session, to duct-tape memory leak
-        gpt2.reset_session()
-        sess = gpt2.start_tf_sess()
-        gpt2.load_gpt2(sess)
-
 if int(REGEN_PER_USER) > 0:
     for fname in glob.glob('from_user_cache/*'):
         output = gpt2.generate(sess,
@@ -68,7 +63,7 @@ if int(REGEN_PER_USER) > 0:
             temperature=float(TEMP),
             top_k=int(TOP_K),
             nsamples=int(REGEN_PER_USER),
-            batch_size=int(REGEN_PER_USER),
+            batch_size=int(BATCH_SIZE),
             prefix='[' + fname[16:-4] + ';',
             return_as_list=True
             )
