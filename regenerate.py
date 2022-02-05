@@ -2,6 +2,7 @@ import os
 import gpt_2_simple as gpt2
 from dotenv import load_dotenv
 import glob
+from datetime import datetime
 load_dotenv()
 TEMP = os.getenv('TEMPERATURE')
 TOP_K = os.getenv('TOP_K')
@@ -39,6 +40,7 @@ def format_string(input_string):
         input_string = input_string.replace(mapping[1], mapping[0])
     return input_string
 
+start_time = datetime.now()
 if int(REGEN_COUNT) > 0:
     output = gpt2.generate(sess,
         length=200,
@@ -75,4 +77,6 @@ if int(REGEN_PER_USER) > 0:
         print(f'{fname[16:-4]}\'s quotes generated successfully.')
         file.close()
 
-print('Regeneration Complete.')
+end_time = datetime.now()
+
+print(f'Regeneration Complete, took {end_time - start_time}')
