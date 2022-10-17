@@ -17,3 +17,8 @@ You'll need a discord bot and key of your own, check out https://discord.com/dev
 5. Run train_model.py to create a GPT-2 model and train it on those inputs
 6. Run bot.py to start up the discord bot, which responds to `/au` or `/au_prefix` to generate text.  
       Alternatively, you could run `regenerate.py`, then run `bot_cache_only.py` to run the bot without built-in quote generation. This means you lose access to the `/au_prefix` command, and you have to run `regenerate.py` every time you want new quotes, but the bot program uses much less of your system resources in return.
+
+Notes:
+Individual channel scrapes are in reverse order, but the completed full scrape file is chronological.
+The scrapes are ordered as such: [author: message | reply_author: reply message]. The bot ignores the reply content when outputting quotes, but it is still saved and generated.
+Currently, the scraper ignores attachments entirely.
