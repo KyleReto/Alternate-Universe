@@ -26,9 +26,9 @@ async def on_ready():
         file = open("scrapes/" + channel.name + ".txt", "w", encoding='utf8')
         print(f'Scraping channel: {channel}')
         async for message in channel.history(limit=None):
-            encoded = f'[{message.author.name};{message.clean_content}'
+            encoded = f'[{encode(message.author.name)};{encode(message.clean_content)}'
             if message.reference and message.reference.resolved and not (isinstance(message.reference.resolved, ds.DeletedReferencedMessage)):
-                encoded += f';{message.reference.resolved.author.name};{message.reference.resolved.clean_content}'
+                encoded += f';{encode(message.reference.resolved.author.name)};{encode(message.reference.resolved.clean_content)}'
             if (message.clean_content != ''):
                 file.write(encoded + "]\n")
         file.close()
