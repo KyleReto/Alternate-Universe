@@ -20,7 +20,8 @@ def replace_unsafe_chars(input_string, reverse = False):
         ("]", '&(rb)'),
         ('[', '&(lb)'),
         (';', '&(sc)'),
-        ('\n', '&(nl)')
+        ('\n', '&(nl)'),
+        ('|', '&(pi)')
     )
     if not reverse:
         for mapping in replace_map:
@@ -37,6 +38,9 @@ def format_string(input_string):
         ("", ']'),
         ("", '[')
     )
+    # For discord, remove the reply section, if it exists.
+    # Replies are hard to display in a text-only format. For other versions using the same model, we may still want to keep them.
+    input_string = input_string.split('|', 1)[0]
     for mapping in replace_map:
         input_string = input_string.replace(mapping[1], mapping[0])
     return input_string

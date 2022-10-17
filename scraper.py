@@ -28,7 +28,7 @@ async def on_ready():
         async for message in channel.history(limit=None):
             encoded = f'[{encode(message.author.name)};{encode(message.clean_content)}'
             if message.reference and message.reference.resolved and not (isinstance(message.reference.resolved, ds.DeletedReferencedMessage)):
-                encoded += f';{encode(message.reference.resolved.author.name)};{encode(message.reference.resolved.clean_content)}'
+                encoded += f'|{encode(message.reference.resolved.author.name)};{encode(message.reference.resolved.clean_content)}'
             if (message.clean_content != ''):
                 file.write(encoded + "]\n")
         file.close()
@@ -48,13 +48,14 @@ async def on_ready():
     exit("Scraping complete.")
 
 # Format of a proper encode is as follows:
-# [author;message;referenceAuthor;referenceContent(missing if absent)] (Newline between entries)
+# [author;message|referenceAuthor;referenceContent(missing if absent)] (Newline between entries)
 def encode(s):
     replace_map = (
             ("]", '&(rb)'),
             ('[', '&(lb)'),
             (';', '&(sc)'),
-            ('\n', '&(nl)')
+            ('\n', '&(nl)'),
+            ('|', '&(pi)')
         )
     for mapping in replace_map:
         s = s.replace(mapping[0], mapping[1])
