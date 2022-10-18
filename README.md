@@ -1,5 +1,5 @@
 # Alternate-Universe
-A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-2.  
+A set of Python applications that allow the user to generate text outputs based on the chat log of a discord server using GPT-3.  
 You'll need a discord bot and key of your own, check out the [Discord Developer Portal](https://discord.com/developers/applications) for more info.  
 You'll also need an [OpenAI](https://beta.openai.com) account and corresponding API token.  
 Running the bot requires approval from OpenAI in order to meet their TOS, so please request that if you use the bot script.  
