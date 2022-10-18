@@ -20,7 +20,8 @@ Running the bot requires approval from OpenAI in order to meet their TOS, so ple
 6. Create a model in `playground.py`:  
   a. Upload the `prepared.jsonl` file  
   b. Find your file's name.  
-  c. Create a fine-tuned model (NOTE: THIS STEP INCURS A COST, BILLED TO YOUR OPENAI ACCOUNT.)  
+  c. Create a fine-tuned model  
+    (NOTE: THIS STEP INCURS A COST, BILLED TO YOUR OPENAI ACCOUNT.)  
   d. Find your model's name.  
   e. Put the model's name into the `.env` file.  
 6. Run bot.py to start up the discord bot, which responds to `/au`, `/au_from`, or `/au_converse` to generate text. Get approval from OpenAI before doing this.  
