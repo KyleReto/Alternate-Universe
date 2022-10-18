@@ -28,11 +28,11 @@ openai.api_key = os.getenv('GPT3_TOKEN')
 # Cancel an operation
 #openai.FineTune.cancel(id='')
 
-# List all filetune operations
-print(openai.FineTune.list())
+# List all filetune operations, to find their model names.
+#print(openai.FineTune.list())
 
 # List a specific finetune operation
-print(openai.FineTune.retrieve(id='')
+#print(openai.FineTune.retrieve(id='')
 
 # Generate some output from a model
 #print(openai.Completion.create(model=''))
