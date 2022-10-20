@@ -28,6 +28,8 @@ lines = complete_scrapes.readlines()
 enumerated_lines = enumerate(lines)
 for i, line in enumerated_lines:
     str = '{\"prompt\":\"'
+    # This approach skews data toward overprioritizing the first in a chain of messages. 
+    # TODO: A rolling window may be more fitting for this application (needs testing).
     n = (n%6)+1 # ranges from 1 to 6
     try:
         for j in range(1, n+1): # ranges from 1 to 6 as well
@@ -36,10 +38,11 @@ for i, line in enumerated_lines:
         str += '\", \"completion\":\"'
         str += encode(lines[i+n+1].rstrip()) + '\\n\"}\n'
     except IndexError:
-        # If we're out of lines to read, don't write anything and the program safely. I realize that this is hacky, but it's the most robust and time-efficient way to solve this problem.
+        # If we're out of lines to read, don't write anything and the program safely. I realize that this is hacky, but it's the most robust and dev-time-efficient way to solve this problem.
         complete_scrapes.close()
         prepared.close()
         exit()
+    # TODO: Rewite to skip over lines instead of having a hard limit, as this skews toward older messages in alphabetically higher channels.
     if num_examples >= int(MAX_EXAMPLES):
         # If we're at or over our limit, exit cleanly.
         complete_scrapes.close()

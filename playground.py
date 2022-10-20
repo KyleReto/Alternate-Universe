@@ -7,12 +7,12 @@ load_dotenv()
 
 openai.api_key = os.getenv('GPT3_TOKEN')
 
-# This file lets you run various API interactions easily. To use one, uncomment the command(s) and run the file.
+# This file lets you run various API interactions easily. To use one, uncomment the command(s) and run the file. You can also use the CLI tool, if you prefer.
 
 # Upload prepared data to openAI for finetuning
 #openai.File.create(file=open("scrapes/prepared.jsonl", 'r', encoding='utf8'), purpose='fine-tune')
 
-# List all files on your openAI account, to find their names
+# List all files on your openAI account, to find their ids
 #print(openai.File.list())
 
 # Retrieve information about a specific file, by name.
@@ -31,10 +31,10 @@ openai.api_key = os.getenv('GPT3_TOKEN')
 # List all filetune operations, to find their model names.
 #print(openai.FineTune.list())
 
-# List a specific finetune operation
-#print(openai.FineTune.retrieve(id='')
+# List a specific finetune operation by id
+#print(openai.FineTune.retrieve(id=''))
 
-# Generate some output from a model
+# Generate some output from a model by name
 #print(openai.Completion.create(model=''))
 
 # Generate some output from a model, in response to a prompt
