@@ -13,6 +13,7 @@ BEST_OF = os.getenv('BEST_OF')
 FREQ_PENALTY = os.getenv('FREQ_PENALTY')
 PRES_PENALTY = os.getenv('PRES_PENALTY')
 NUM_QUOTES = os.getenv('NUM_QUOTES')
+END_PROMPT = os.getenv('END_PROMPT')
 
 @bot.event
 async def on_ready():
@@ -23,7 +24,7 @@ async def on_ready():
 ### TODO: Send user IDs to the API.
 ### TODO: Hide output by default. (require manual reposting/filtering by requester)
 
-# Info for OpenAI request:
+# Suggested description for OpenAI's request form:
 # This is an update of the GPT-2 version of the same application, where it generates plausible discussions in a discord channel.
 # There is a tool/interface that I and others may recurringly use (discord)
 # 5-10 end-users, all manually approved by myself (with identity verification) (very small scale)
@@ -76,7 +77,19 @@ def format_string(input_string):
 def recursive_generate(prompt, num_quotes):
     output = ''
     for i in range(num_quotes):
-        response = openai.Completion.create(model=MODEL_NAME, temperature=float(TEMP), best_of=int(BEST_OF), n=1, stop='\n', prompt=prompt, frequency_penalty=float(FREQ_PENALTY), presence_penalty=float(PRES_PENALTY))
+        response = openai.Completion.create(model=MODEL_NAME, temperature=float(TEMP), best_of=int(BEST_OF), n=1, stop='\n', prompt=prompt + END_PROMPT, frequency_penalty=float(FREQ_PENALTY), presence_penalty=float(PRES_PENALTY))
+        message_str = ''
+        for content in response.choices:
+            message_str += replace_unsafe_chars(format_string(content.text), True) + '\n'
+            prompt += content.text + '\n'
+        output += message_str
+    return output
+
+# Placeholder for testing purposes
+def recursive_generate_temp(prompt, num_quotes, temp):
+    output = ''
+    for i in range(num_quotes):
+        response = openai.Completion.create(model=MODEL_NAME, temperature=temp, best_of=int(BEST_OF), n=1, stop='\n', prompt=prompt + END_PROMPT, frequency_penalty=float(FREQ_PENALTY), presence_penalty=float(PRES_PENALTY))
         message_str = ''
         for content in response.choices:
             message_str += replace_unsafe_chars(format_string(content.text), True) + '\n'
@@ -90,16 +103,26 @@ async def au(ctx):
     output = recursive_generate('[', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
+@bot.slash_command(description='Enter a temperature value, from 0 to 1. Higher numbers are more creative, lower are more stable.')
+async def temp(ctx, temperature):
+    temperature = float(temperature)
+    if (temperature > 1 or temperature < 0) : return await ctx.respond("Please enter a value between 0 and 1.")
+    await ctx.respond('Thinking...')
+    output = recursive_generate_temp('[', int(NUM_QUOTES), temperature)
+    return await ctx.edit(content=output)
+
+# TODO: Indicate user as given
 @bot.slash_command(description='Generate a random quote from a specific user.')
 async def user(ctx, user):
     await ctx.respond('Thinking...')
     output = user + ': ' + recursive_generate('[' + user + ';', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
+# TODO: Indicate message as given
 @bot.slash_command(description='Generate a random quote from a specific user.')
 async def message(ctx, user, message):
     await ctx.respond('Thinking...')
-    output = user + ': ' + message + '\n' + recursive_generate('[' + user + ';' + message + ']\n', int(NUM_QUOTES))
+    output = user + ': ' + message + '\n' + recursive_generate('[' + user + ';' + message + ']\n[', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
 @bot.slash_command(description='Continue the conversation.')
@@ -108,10 +131,11 @@ async def converse(ctx):
     prompt = ''
     def predicate(message):
         return not message.author.bot
+    # TODO: Make this "the last 10 human messages", rather than "the last 10 messages, not including those sent by a bot"
     for message in reversed(await ctx.channel.history(limit=10).filter(predicate).flatten()):
         prompt+= '[' + replace_unsafe_chars(message.author.name)
         prompt += ';' + replace_unsafe_chars(message.content) + ']\n'
-    output = recursive_generate(prompt, int(NUM_QUOTES))
+    output = recursive_generate(prompt + '[', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
 bot.run(TOKEN)

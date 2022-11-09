@@ -1,5 +1,4 @@
 import os
-import sys
 import discord as ds
 from dotenv import load_dotenv
 load_dotenv()

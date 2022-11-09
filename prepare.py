@@ -1,8 +1,4 @@
-from doctest import SKIP
-from lib2to3.pgen2.token import PERCENT
 import os
-import sys
-from tkinter.tix import WINDOW
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -30,6 +26,7 @@ n = 0
 num_examples = 0
 lines = complete_scrapes.readlines()
 enumerated_lines = enumerate(lines)
+# TODO: separate author from content in prepared data.
 # This loop is a little complex: The idea is to take a rolling window of quotes and convert them to jsonl prompt/completion format.
 # The quotes range from 1 prompt 1 completion to n prompts and 1 completion.
 for i, line in enumerated_lines:
@@ -46,7 +43,7 @@ for i, line in enumerated_lines:
             ignore_lines = int((n+1) * (1-float(PERCENT_READ))/float(PERCENT_READ))
         except ZeroDivisionError:
             ignore_lines = 0
-        # Skip over any additional lines we've read, plus any we'd like to skip
+        # Skip over any additional lines we've already read, plus any we'd like to skip
         for j in range(ignore_lines + n):
             next(enumerated_lines)
     except (IndexError, StopIteration):

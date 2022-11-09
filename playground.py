@@ -1,7 +1,5 @@
-from asyncio.windows_events import NULL
 import openai
 import os
-import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -21,9 +19,10 @@ openai.api_key = os.getenv('GPT3_TOKEN')
 # Create the finetuned model.
 # Model cal be set to 'ada', 'babbage', 'curie', or 'davinci'. Curie is a good balance between cost and efficacy for this task.
 # Suffix is aesthetic, it only changes the name of the resulting model.
-# There are other parameters which may be worth exploring, check the documentation if you're interested.
+# I would advise tinkering with the parameters here on a cheaper model with a smaller dataset first, then moving up to a high end model with a larger dataset once you're happy with the results.
+# There are other parameters which may be worth exploring, check the documentation (https://beta.openai.com/docs/api-reference/fine-tunes/create) if you're interested.
 # RUNNING THIS LINE WILL INCUR A COST
-#openai.FineTune.create(training_file='', model='curie', n_epochs=4, suffix='curie-test-v1', learning_rate_multiplier=NULL, prompt_loss_weight=0.05)
+#openai.FineTune.create(training_file='', model='curie', n_epochs=2, suffix='curie-test-v1', learning_rate_multiplier=0.07, prompt_loss_weight=0.05)
 
 # Cancel an operation
 #openai.FineTune.cancel(id='')
