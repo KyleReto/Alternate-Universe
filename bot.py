@@ -14,15 +14,21 @@ FREQ_PENALTY = os.getenv('FREQ_PENALTY')
 PRES_PENALTY = os.getenv('PRES_PENALTY')
 NUM_QUOTES = os.getenv('NUM_QUOTES')
 END_PROMPT = os.getenv('END_PROMPT')
+WAIT_MSG = 'Thinking...'
 
 @bot.event
 async def on_ready():
     print(f'{bot.user} connected successfully')
 
-### TODO: Add a user whitelist to who can summon the bot.
-### TODO: Add a second whitelist for whose messages are put into prepared.jsonl.
-### TODO: Send user IDs to the API.
-### TODO: Hide output by default. (require manual reposting/filtering by requester)
+# TODO: Extend message length limit on output
+# TODO: Add moderation API
+# TODO: Send user IDs to API
+# TODO: Optimize GPT-3 params further
+# TODO: Make /converse use the last 10 human messages
+# TODO: Add a /screenshot command that generates a screenshot
+# TODO: Add channels to training data + handle in output
+# TODO: Add a regex filter to output that takes <:text:[numbers] and converts to closest emoji.
+# TODO: Set better defaults in .env
 
 # Suggested description for OpenAI's request form:
 # This is an update of the GPT-2 version of the same application, where it generates plausible discussions in a discord channel.
@@ -99,7 +105,7 @@ def recursive_generate_temp(prompt, num_quotes, temp):
 
 @bot.slash_command(description='Generate a short conversation.')
 async def au(ctx):
-    await ctx.respond('Thinking...')
+    await ctx.respond(WAIT_MSG)
     output = recursive_generate('[', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
@@ -107,27 +113,27 @@ async def au(ctx):
 async def temp(ctx, temperature):
     temperature = float(temperature)
     if (temperature > 1 or temperature < 0) : return await ctx.respond("Please enter a value between 0 and 1.")
-    await ctx.respond('Thinking...')
+    await ctx.respond(WAIT_MSG)
     output = recursive_generate_temp('[', int(NUM_QUOTES), temperature)
     return await ctx.edit(content=output)
 
 # TODO: Indicate user as given
 @bot.slash_command(description='Generate a random quote from a specific user.')
 async def user(ctx, user):
-    await ctx.respond('Thinking...')
+    await ctx.respond(WAIT_MSG)
     output = user + ': ' + recursive_generate('[' + user + ';', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
 # TODO: Indicate message as given
 @bot.slash_command(description='Generate a random quote from a specific user.')
 async def message(ctx, user, message):
-    await ctx.respond('Thinking...')
+    await ctx.respond(WAIT_MSG)
     output = user + ': ' + message + '\n' + recursive_generate('[' + user + ';' + message + ']\n[', int(NUM_QUOTES))
     return await ctx.edit(content=output)
 
 @bot.slash_command(description='Continue the conversation.')
 async def converse(ctx):
-    await ctx.respond('Thinking...')
+    await ctx.respond(WAIT_MSG)
     prompt = ''
     def predicate(message):
         return not message.author.bot
