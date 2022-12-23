@@ -26,26 +26,11 @@ async def on_ready():
 # Added moderation to outputs, to comply with OpenAI's terms of service.
 # Added usernames to API calls, meaning we can now track how much each user uses the bot.
 # TODO: Optimize GPT-3 params further
-# TODO: Make /converse use the last 10 human messages
+# /converse now uses the last 10 human messages, meaning it works regardless of how cluttered the channel is with bot activity.
 # TODO: Add a /screenshot command that generates a screenshot
 # TODO: Add channels to training data + handle in output
 # TODO: Add a regex filter to output that takes <:text:[numbers] and converts to closest emoji.
 # TODO: Set better defaults in .env
-
-# Suggested description for OpenAI's request form:
-# This is an update of the GPT-2 version of the same application, where it generates plausible discussions in a discord channel.
-# There is a tool/interface that I and others may recurringly use (discord)
-# 5-10 end-users, all manually approved by myself (with identity verification) (very small scale)
-# The whitelist is tracked by their discord user ID, which is also the identifying token for each user in the API. Discord 2FA login can be required, if openai deems it necessary.
-# There is no charge for or income from this application
-# Misuse is very unlikely: All users are manually vetted and whitelisted. Abuse means permanent removal from the whitelist.
-# Uses discord, which is somewhere between social media and a chatbot:
-#   Social Media: Output is only visible to the requester. These approved and vetted users must manually approve and send the text output before anyone can see it.
-#       Though, "everyone" is just a larger set of vetted users, just up to somewhat less discretion than bot users.
-#   Chatbot: Meant to be entertainment. Output is clearly marked as the bot's own.
-#       It does, to an extent, take on the persona of different real users. However, it only outputs text from users who have given explicit consent (removes any names and messages not on the whitelist),
-#       and is not designed in a way conducive to strong impersonations anyways.
-#       It pulls from too many different users to convincingly imitate any one individual. The intent (and functionality) is to imitate general discussion, not individual personas.
 
 # Encode unsafe characters in the given string. The reverse parameter instead decodes the string.
 def replace_unsafe_chars(input_string, reverse = False):
@@ -122,10 +107,17 @@ async def converse(ctx):
     prompt = ''
     def predicate(message):
         return not message.author.bot
-    # TODO: Make this "the last 10 human messages", rather than "the last 10 messages, not including those sent by a bot"
+    '''
     for message in reversed(await ctx.channel.history(limit=10).filter(predicate).flatten()):
         prompt+= '[' + replace_unsafe_chars(message.author.name)
         prompt += ';' + replace_unsafe_chars(message.content) + ']\n'
+    '''
+    limit = 0
+    async for message in ctx.channel.history().filter(predicate):
+        if limit >= 10: break
+        prompt += '[' + replace_unsafe_chars(message.author.name)
+        prompt += ';' + replace_unsafe_chars(message.content) + ']\n'
+        limit += 1
     output = recursive_generate(prompt + '[', int(NUM_QUOTES), ctx.author.name)
     return await ctx.edit(content=output)
 
