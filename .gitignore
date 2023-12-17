@@ -1,6 +1,7 @@
 *.env
 *.txt
 .venv/
+.vscode/
 models/
 checkpoint/
 samples/
